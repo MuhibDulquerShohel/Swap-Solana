@@ -1,25 +1,25 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked};
-
-pub fn transfer_tokens<'info>(
+use anchor_spl::token_interface::{TokenAccount, TokenInterface, Mint, TransferChecked, transfer_checked};
+pub fn transfer_tokens<'info> (
     from: &InterfaceAccount<'info, TokenAccount>,
     to: &InterfaceAccount<'info, TokenAccount>,
-    amount:&u64,
+    amount: &u64,
     mint: &InterfaceAccount<'info, Mint>,
-    authority:&Signer<'info>,
+    authority: &Signer<'info>,
     token_program: &Interface<'info, TokenInterface>,
-) -> Result<()> {
+
+
+) -> Result<()>{
     let transfer_accounts_options = TransferChecked {
-        from: from.to_account_info(),
-        mint: mint.to_account_info(),
+        from:from.to_account_info(),
+        mint:mint.to_account_info(),
         to:to.to_account_info(),
         authority:authority.to_account_info(),
-
     }
-    let cpi_context = CpiContext:: new (
-        program: token_program.to_account_info(),
-        accounts:transfer_accounts_options,
+    let cpi_context = CpiContext::new(
+        token_program.to_account_info(), transfer_accounts_options
+    );
 
-    )
-Ok(())
+    transfer_checked(cpi_context, *amount, mint.decimals)
+   Ok(()) 
 }
